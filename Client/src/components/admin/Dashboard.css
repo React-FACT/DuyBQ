@@ -1,3 +1,5 @@
+/* Table */
+
 .header {
     vertical-align: middle;
     font-weight: bold;
@@ -15,4 +17,21 @@
 
 #table-body {
     text-align: center;
+}
+
+
+/* Modal */
+
+.modal-header {
+    background-color: rgb(215, 215, 250);
+}
+
+.modal-textarea {
+    resize: none;
+}
+
+.input-required::after {
+    content: ' *';
+    color: red;
+    font-weight: bold;
 }

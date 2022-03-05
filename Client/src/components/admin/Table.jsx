@@ -10,8 +10,8 @@ class _Table extends Component {
       isShow: false,
       actionName: '',
     };
-    this.handleShow.bind(this);
-    this.handleHide.bind(this);
+    // this.handleShow.bind(this);
+    // this.handleHide.bind(this);
   }
 
   handleShow = (name) => {
@@ -65,7 +65,6 @@ class _Table extends Component {
             </thead>
             <tbody id='table-body'>
               {this.state.dataTable.map((value, index) => {
-                console.log(value);
                 return (
                   <tr key={index}>
                     <td>{index + 1}</td>
