@@ -1,7 +1,11 @@
 import axios from 'axios';
 
-axios.defaults.headers.post['Content-Type'] = 'application/json';
-export const httpRequest = axios.create({
-    baseURL: 'http://localhost:3300/api/v1/',
+//Configuration Instance HttpRequest By Axios
+// Setup options for axios
+const httpConfig = {
+    baseURL: process.env.REACT_APP_API_URL,
     timeout: 6000,
-});
+};
+const httpRequest = axios.create(httpConfig);
+
+export { httpRequest };

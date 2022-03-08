@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import Dashboard from './components/admin/Dashboard';
+import AppRouting from './routes/AppRouting';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 class App extends Component {
   render() {
-    return <Dashboard />;
+    return <AppRouting />;
   }
 }
 
