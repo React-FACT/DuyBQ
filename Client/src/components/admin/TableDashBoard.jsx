@@ -1,9 +1,13 @@
 import React, { Component } from 'react';
 import moment from 'moment';
+import PropTypes from 'prop-types';
 import ModalDashBoard from './ModalDashBoard';
 import { Container, Row, Table } from 'react-bootstrap';
 import { tableConstant, tbClassConstant } from '../constants/admin.constant';
 import { iconConstant, classConstant, textEventConstant } from '../constants/global.constant';
+import { connect } from 'react-redux';
+import { remove } from '../../apis/admin/admin.api';
+import { actionDeleteUser } from '../../redux/actions/admin.Action';
 
 class TableDashBoard extends Component {
    constructor(props) {
@@ -13,14 +17,30 @@ class TableDashBoard extends Component {
          isShow: false,
          actionName: '',
          userId: 0,
+         isEffect: false,
       };
+   }
+
+   componentDidUpdate(previousProps, previousState) {
+      if (this.state.isEffect === true) {
+         this.setState({ ...this.state, dataTable: this.props.users.dataUsers, isEffect: false });
+      }
    }
 
    handleShow = (name, usrId) => {
       this.setState({ ...this.state, isShow: true, actionName: name, userId: usrId });
    };
+
    handleHide = () => {
-      this.setState({ ...this.state, isShow: false });
+      this.setState({ ...this.state, isShow: false, isEffect: true });
+   };
+
+   /*  send request delete user to server */
+   handleDelete = (usrId) => {
+      this.props.deleteUserById(usrId);
+      remove(usrId).then((res) => {
+         this.setState({ ...this.state, isEffect: true });
+      });
    };
 
    render() {
@@ -41,6 +61,12 @@ class TableDashBoard extends Component {
             );
          }
          return element;
+      };
+
+      const specialInput = (value, type) => {
+         let radio = <input type='radio' id='active' checked={value === 0 ? true : false} readOnly />;
+         let checkBox = <input type='checkbox' checked={value === 0 ? true : false} readOnly />;
+         return type === 'radio' ? radio : checkBox;
       };
 
       return (
@@ -82,8 +108,8 @@ class TableDashBoard extends Component {
                               <td>{moment(value['birthDate']).format('DD-MM-YYYY')}</td>
                               <td>{moment(value['firstLogin']).format('DD-MM-YYYY')}</td>
                               <td>{moment(value['lastLogin']).format('DD-MM-YYYY')}</td>
-                              <td>{value['isAdmin']}</td>
-                              <td>{value['isActive']}</td>
+                              <td>{specialInput(value['isAdmin'], 'checkbox')}</td>
+                              <td>{specialInput(value['isActive'], 'radio')}</td>
                               <td>
                                  <button className={classConstant.CLASS_BTN_PRIMARY}>{iconConstant.I_DETAILS}</button>
                               </td>
@@ -96,7 +122,12 @@ class TableDashBoard extends Component {
                                  </button>
                               </td>
                               <td>
-                                 <button className={classConstant.CLASS_BTN_DANGER}>{iconConstant.I_DELETE}</button>
+                                 <button
+                                    className={classConstant.CLASS_BTN_DANGER}
+                                    onClick={() => this.handleDelete(value['id'])}
+                                 >
+                                    {iconConstant.I_DELETE}
+                                 </button>
                               </td>
                            </tr>
                         );
@@ -114,4 +145,25 @@ class TableDashBoard extends Component {
       );
    }
 }
-export default TableDashBoard;
+
+const mapStateToProps = (state) => {
+   return {
+      users: state.users,
+   };
+};
+
+const mapDispatchToProps = (dispatch, props) => {
+   return {
+      deleteUserById: (userId) => {
+         dispatch(actionDeleteUser(userId));
+      },
+   };
+};
+
+// Define PropTypes
+TableDashBoard.propTypes = {
+   data: PropTypes.array.isRequired,
+   users: PropTypes.object,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(TableDashBoard);

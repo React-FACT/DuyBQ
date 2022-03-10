@@ -2,11 +2,12 @@ import React, { Component } from 'react';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { create } from '../../apis/admin/admin.api';
+import { getAll, create, update } from '../../apis/admin/admin.api';
 import { tableConstant } from '../constants/admin.constant';
 import { ActionTypes } from '../../redux/constants/ActionTypes';
 import { Modal, Button, Form, Row, Col } from 'react-bootstrap';
 import { actionGetAddress } from '../../redux/actions/address.Action';
+import { actionGetAllUser, actionUpdateUser } from '../../redux/actions/admin.Action';
 import { textEventConstant, classConstant } from '../constants/global.constant';
 import { getCountry, getCityById, getDistrictById, getWardById } from '../../apis/address/address.api';
 
@@ -31,9 +32,43 @@ class ModalDashBoard extends Component {
             districtId: 0,
             wardId: 0,
          },
+         msgErr: {
+            msgEmail: '',
+            msgUserName: '',
+         },
       };
    }
+
+   initState = () => {
+      this.setState({
+         formData: {
+            username: '',
+            password: '',
+            email: '',
+            birthDate: moment(),
+            firstName: '',
+            lastName: '',
+            isAdmin: 0,
+            isActive: 0,
+            phone: '',
+            addressDes: '',
+            note: '',
+            countryId: 0,
+            provinceId: 0,
+            districtId: 0,
+            wardId: 0,
+         },
+         msgErr: {
+            msgEmail: '',
+            msgPassword: '',
+            msgUserName: '',
+            msgLastName: '',
+         },
+      });
+   };
+
    async componentDidMount() {
+      this.initState();
       await getCountry().then((res) => {
          this.props.getAddress(ActionTypes.GET_ALL_COUNTRY, res['results']);
       });
@@ -41,13 +76,13 @@ class ModalDashBoard extends Component {
 
    componentDidUpdate(previousProps, previousState) {
       if (previousProps.userId !== this.props.userId) {
-         console.log('componentDidUpdate');
+         this.initState();
          this.getUserById(this.props.userId);
       }
    }
 
    getUserById = (usrId) => {
-      let userById = this.props.users.filter((v) => v.id === usrId);
+      let userById = this.props.users.dataUsers.filter((v) => v.id === usrId);
       if (userById.length > 0) {
          this.setState({ formData: { ...userById[0] } });
       }
@@ -64,8 +99,6 @@ class ModalDashBoard extends Component {
          </option>
       ));
    }
-
-   messageError = (key) => {};
 
    handleOnchange = async (e) => {
       switch (e.target.name) {
@@ -101,17 +134,61 @@ class ModalDashBoard extends Component {
       }
    };
 
-   handleSubmit = async (e) => {
-      console.log(this.state.formData);
-      // for (const [key, value] of Object.entries(this.state.formData)) {
-      //    console.log(`${key}: ${value}`);
-      //    if (value === '') {
-      //       this.messageError('password');
-      //    }
-      // }
-      // return await create(this.state.formData)
-      //    .then((res) => console.log(res))
-      //    .catch((err) => err);
+   validateForm = () => {
+      let isValid = true;
+      let re = /\S+@\S+\.\S+/;
+      if (re.test(this.state.formData.email) === false) {
+         this.setState({ ...this.state, msgErr: { ...this.state.msgErr, msgEmail: 'Field is required' } });
+         isValid = false;
+      }
+
+      if (this.state.formData.username.length === 0) {
+         this.setState({ ...this.state, msgErr: { ...this.state.msgErr, msgUserName: 'Field is required' } });
+         isValid = false;
+      }
+      if (this.state.formData.lastName.length === 0) {
+         this.setState({ ...this.state, msgErr: { ...this.state.msgErr, msgLastName: 'Field is required' } });
+         isValid = false;
+      }
+      if (this.state.formData.password.length === 0) {
+         this.setState({ ...this.state, msgErr: { ...this.state.msgErr, msgPassword: 'Field is required' } });
+         isValid = false;
+      }
+      return isValid;
+   };
+
+   handleUpdate = () => {
+      const { createdAt, createdBy, firstLogin, lastLogin, updatedAt, updatedBy, id, ...dataUser } =
+         this.state.formData;
+      let isValid = this.validateForm(dataUser);
+      if (isValid === false) {
+         return;
+      }
+      update(id, dataUser).then((res) => {
+         if (res.errorCode === 200) {
+            this.props.updateUser(this.state.formData);
+            this.hide();
+         }
+      });
+   };
+
+   handleAdd = async (e) => {
+      let isValid = await this.validateForm();
+      if (isValid === false) {
+         return;
+      }
+      await create(this.state.formData).then((res) => {
+         this.requestGetLatestUser(res);
+      });
+   };
+
+   requestGetLatestUser = () => {
+      getAll().then((res) => {
+         if (res.errorCode === 200) {
+            this.props.getUser(res['results']);
+            this.hide();
+         }
+      });
    };
 
    getFirstOpt(data) {
@@ -142,7 +219,7 @@ class ModalDashBoard extends Component {
                               this.setState({ formData: { ...this.state.formData, username: e.target.value } })
                            }
                         />
-                        <Form.Text id='username-error' className='text-muted'></Form.Text>
+                        <Form.Text className='text-danger'>{this.state.msgErr.msgUserName}</Form.Text>
                      </Form.Group>
 
                      <Form.Group as={Col}>
@@ -157,7 +234,7 @@ class ModalDashBoard extends Component {
                               this.setState({ formData: { ...this.state.formData, password: e.target.value } })
                            }
                         />
-                        <Form.Text id='password-error' className='text-muted'></Form.Text>
+                        <Form.Text className='text-danger'>{this.state.msgErr.msgPassword}</Form.Text>
                      </Form.Group>
                   </Row>
 
@@ -188,6 +265,7 @@ class ModalDashBoard extends Component {
                               this.setState({ formData: { ...this.state.formData, lastName: e.target.value } })
                            }
                         />
+                        <Form.Text className='text-danger'>{this.state.msgErr.msgLastName}</Form.Text>
                      </Form.Group>
                   </Row>
 
@@ -199,7 +277,7 @@ class ModalDashBoard extends Component {
                         <Form.Select
                            name='role'
                            id='role-opt'
-                           defaultValue={this.state.formData['isAdmin'] === 0 ? '0' : '1'}
+                           defaultValue={this.state.formData['isAdmin'] === 1 ? '1' : '0'}
                            onChange={(e) => this.handleOnchange(e)}
                         >
                            <option value='0'>Administrator</option>
@@ -211,7 +289,7 @@ class ModalDashBoard extends Component {
                         <Form.Label className={classConstant.CLASS_LABEL}>{tableConstant.tbStatus}</Form.Label>
                         <Form.Select
                            name='status'
-                           defaultValue={this.state.formData['isActive'] === 0 ? '0' : '1'}
+                           defaultValue={this.state.formData['isActive'] === 1 ? '1' : '0'}
                            id='status-opt'
                            onChange={(e) => this.handleOnchange(e)}
                         >
@@ -224,7 +302,7 @@ class ModalDashBoard extends Component {
                   {/* Phone */}
 
                   <Form.Group className={classConstant.CLASS_MB3}>
-                     <Form.Label className={classConstant.CLASS_LABEL_REQUIRED}>{tableConstant.tbPhone}</Form.Label>
+                     <Form.Label className={classConstant.CLASS_LABEL}>{tableConstant.tbPhone}</Form.Label>
                      <Form.Control
                         type='number'
                         value={this.state.formData['phone']}
@@ -242,6 +320,7 @@ class ModalDashBoard extends Component {
                         placeholder='@gmail'
                         onChange={(e) => this.setState({ formData: { ...this.state.formData, email: e.target.value } })}
                      />
+                     <Form.Text className='text-danger'>{this.state.msgErr.msgEmail}</Form.Text>
                   </Form.Group>
 
                   {/* Country & City & District & Ward */}
@@ -290,7 +369,7 @@ class ModalDashBoard extends Component {
 
                   {/* Address TextArea */}
 
-                  <Form.Group lassName={classConstant.CLASS_MB3_TEXTAREA}>
+                  <Form.Group className={classConstant.CLASS_MB3_TEXTAREA}>
                      <Form.Control
                         as='textarea'
                         rows={3}
@@ -318,7 +397,12 @@ class ModalDashBoard extends Component {
                <Button variant={classConstant.CLASS_VARIANT_SECONDARY} onClick={() => this.hide()}>
                   {textEventConstant.TEXT_CLOSE}
                </Button>
-               <Button variant={classConstant.CLASS_BTN_PRIMARY} onClick={(e) => this.handleSubmit(e)}>
+               <Button
+                  variant={classConstant.CLASS_BTN_PRIMARY}
+                  onClick={(e) =>
+                     textEventConstant.TXT_ADD_USER === this.props.action ? this.handleAdd(e) : this.handleUpdate()
+                  }
+               >
                   {textEventConstant.TEXT_SAVE}
                </Button>
             </Modal.Footer>
@@ -338,16 +422,23 @@ const mapDispatchToProps = (dispatch, props) => {
       getAddress: (action, address) => {
          dispatch(actionGetAddress(action, address));
       },
+      getUser: (users) => {
+         dispatch(actionGetAllUser(users));
+      },
+      updateUser: (users) => {
+         dispatch(actionUpdateUser(users));
+      },
    };
 };
 
-// Define Prop Types
+// Define PropTypes
 ModalDashBoard.propTypes = {
    show: PropTypes.bool.isRequired,
    hide: PropTypes.func.isRequired,
    action: PropTypes.string.isRequired,
    address: PropTypes.object.isRequired,
    userId: PropTypes.number,
+   users: PropTypes.object,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ModalDashBoard);

@@ -1,13 +1,12 @@
 import React, { Component } from 'react';
-import TableDashBoard from './TableDashBoard';
-import PropTypes from 'prop-types';
-import { getAll } from '../../apis/admin/admin.api';
-import Loader from '../helpers/Loader';
-import Header from '../layout/Header';
-import { connect } from 'react-redux';
 import './Dashboard.css';
+import PropTypes from 'prop-types';
+import Header from '../layout/Header';
+import Loader from '../helpers/Loader';
+import TableDashBoard from './TableDashBoard';
+import { connect } from 'react-redux';
+import { getAll } from '../../apis/admin/admin.api';
 import { actionGetAllUser } from '../../redux/actions/admin.Action';
-
 class Dashboard extends Component {
    constructor(props) {
       super(props);
@@ -26,11 +25,11 @@ class Dashboard extends Component {
    }
 
    render() {
-      var { users } = this.props;
+      var { dataUsers } = this.props.users;
       return (
          <div>
             <Header />
-            <div> {this.state.isLoading === true ? <TableDashBoard data={users} /> : <Loader />}</div>
+            <div> {this.state.isLoading === true ? <TableDashBoard data={dataUsers} /> : <Loader />}</div>
          </div>
       );
    }
@@ -50,30 +49,32 @@ const mapDispatchToProps = (dispatch, props) => {
    };
 };
 
+// Define PropTypes
 Dashboard.propTypes = {
-   users: PropTypes.arrayOf(
+   users: PropTypes.object.isRequired,
+   dataUsers: PropTypes.objectOf(
       PropTypes.shape({
-         id: PropTypes.number.isRequired,
-         username: PropTypes.string.isRequired,
-         email: PropTypes.string.isRequired,
-         password: PropTypes.string.isRequired,
-         firstName: PropTypes.string.isRequired,
-         lastName: PropTypes.string.isRequired,
-         birthDate: PropTypes.string.isRequired,
-         firstLogin: PropTypes.string.isRequired,
-         lastLogin: PropTypes.string.isRequired,
-         isActive: PropTypes.number.isRequired,
-         isAdmin: PropTypes.number.isRequired,
-         phone: PropTypes.string.isRequired,
-         countryId: PropTypes.number.isRequired,
-         provinceId: PropTypes.number.isRequired,
-         districtId: PropTypes.number.isRequired,
-         wardId: PropTypes.number.isRequired,
+         id: PropTypes.bool.isRequired,
+         username: PropTypes.string,
+         email: PropTypes.string,
+         password: PropTypes.string,
+         firstName: PropTypes.string,
+         lastName: PropTypes.string,
+         birthDate: PropTypes.string,
+         firstLogin: PropTypes.string,
+         lastLogin: PropTypes.string,
+         isActive: PropTypes.number,
+         isAdmin: PropTypes.number,
+         phone: PropTypes.string,
+         countryId: PropTypes.number,
+         provinceId: PropTypes.number,
+         districtId: PropTypes.number,
+         wardId: PropTypes.number,
          createdAt: PropTypes.string,
          createdBy: PropTypes.string,
          updatedAt: PropTypes.string,
          updatedBy: PropTypes.string,
-      }).isRequired
+      })
    ),
 };
 

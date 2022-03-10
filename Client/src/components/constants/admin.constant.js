@@ -21,6 +21,7 @@ export const tableConstant = {
     tbWard: 'Ward',
     tbNote: 'Note',
 };
+export const specialElementConstant = {};
 
 export const tbClassConstant = {
     classHeader: 'header',

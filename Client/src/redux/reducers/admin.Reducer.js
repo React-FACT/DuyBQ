@@ -1,18 +1,25 @@
 import { ActionTypes } from '../constants/ActionTypes';
 const initState = {
-    users: [],
+    dataUsers: [],
+    isLoaded: false,
 };
 
 export const usersReducer = (state = initState, action) => {
-    var { id } = action;
     switch (action.type) {
         case ActionTypes.GET_ALL_USER:
-            state = action.users;
-            return [...state];
+            state['dataUsers'] = action.users;
+            return state;
+        case ActionTypes.UPDATE_USER:
+            state['dataUsers'] = state['dataUsers'].map((v, idx) => {
+                if (v.id === action.users.id) {
+                    v = action.users;
+                }
+                return v;
+            });
+            return state;
         case ActionTypes.DELETE_USER:
-            state = id;
-            return [...state];
-
+            state['dataUsers'] = state['dataUsers'].filter((v) => v.id !== action.userId);
+            return state;
         default:
             return state;
     }
