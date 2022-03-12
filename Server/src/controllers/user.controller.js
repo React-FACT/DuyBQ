@@ -11,7 +11,6 @@ const getById = async(req, res) => {
 };
 
 const create = async(req, res) => {
-    console.log(req.body);
     res.json(await _userService.create(req.body));
 };
 
@@ -23,8 +22,8 @@ const remove = (req, res) => {
     res.json(_userService.delete(req.params.id));
 };
 
-const login = (req, res) => {
-    res.json(_userService.login(req.body));
+const login = async(req, res) => {
+    res.json(await _userService.login(req.body));
 };
 module.exports = {
     getAll,

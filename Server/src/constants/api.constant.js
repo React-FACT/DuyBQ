@@ -16,6 +16,7 @@ const CommonMethodConstant = {
     Create: '/',
     Update: '/:id',
     Delete: '/:id',
+    Login: '/login',
 };
 
 module.exports = {

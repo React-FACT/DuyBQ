@@ -32,7 +32,6 @@ class BaseService {
         logger.info(`==================== ${this.constructor.name}, call method Update ====================`);
         entity.id = id;
         let responseDto = new ResponseDto();
-        console.log(entity);
         responseDto.results = await this._repos.update(entity);
         return responseDto;
     };

@@ -2,7 +2,7 @@ const { BaseService } = require('./base/base.service');
 const { UserRepository } = require('../repositories/user.repository');
 const logger = require('../logger/winston.logger');
 const { ResponseDto } = require('../dtos/response.dto');
-
+const JWT = require('jsonwebtoken');
 class UserService extends BaseService {
     _userRepos;
     constructor() {
@@ -26,10 +26,11 @@ class UserService extends BaseService {
         return responseDto;
     };
 
-    login = (payload) => {
-        let { email, password } = payload;
+    login = async(data) => {
         logger.info(`====================  PASSPORT JWT , call method verify Passport JWT ====================`);
-        let isLogin = this._userRepos.repos.findOne({
+        let { email, password } = data;
+        let responseDto = new ResponseDto();
+        let isUser = await this._userRepos.repos.findOne({
             where: {
                 [this._userRepos._ops.and]: [{
                         email: {
@@ -39,15 +40,25 @@ class UserService extends BaseService {
                     { password: password },
                 ],
             },
+            attributes: { exclude: ['password'] },
         });
-        console.log(isLogin);
+        if (isUser) {
+            let payload = isUser.toJSON();
+            let signToken = JWT.sign({ id: payload.id }, process.env.JWT_SECRET_KEY);
+            responseDto.results = { token: signToken, users: payload };
+        } else {
+            responseDto.statusCode = 401;
+            responseDto.results = { msg: 'Email or password incorrect' };
+        }
+
+        return responseDto;
     };
 
-    verifyAuthByUser = (id) => {
+    verifyAuthByUser = async(id) => {
         logger.info(`====================  PASSPORT JWT , call method verify Passport JWT ====================`);
-        let verify = this._userRepos.repos.findOne({ where: { id: id }, attributes: { exclude: ['password'] } });
-        //sign token JWT
-        return verify.length > 0 ? { isLoggedIn: true, user: verify } : { isLoggedIn: false, user: verify };
+        let verify = await this._userRepos.repos.findOne({ where: { id: id }, attributes: { exclude: ['password'] } });
+        let _verify = verify.toJSON();
+        return _verify ? { isLoggedIn: true, user: _verify } : { isLoggedIn: false, user: _verify };
     };
 
     getAllByQuery = async() => {

@@ -165,7 +165,7 @@ class ModalDashBoard extends Component {
          return;
       }
       update(id, dataUser).then((res) => {
-         if (res.errorCode === 200) {
+         if (res.statusCode === 200) {
             this.props.updateUser(this.state.formData);
             this.hide();
          }
@@ -184,7 +184,7 @@ class ModalDashBoard extends Component {
 
    requestGetLatestUser = () => {
       getAll().then((res) => {
-         if (res.errorCode === 200) {
+         if (res.statusCode === 200) {
             this.props.getUser(res['results']);
             this.hide();
          }
@@ -277,7 +277,7 @@ class ModalDashBoard extends Component {
                         <Form.Select
                            name='role'
                            id='role-opt'
-                           defaultValue={this.state.formData['isAdmin'] === 1 ? '1' : '0'}
+                           defaultValue={parseInt(this.state.formData['isAdmin']) === 1 ? '1' : '0'}
                            onChange={(e) => this.handleOnchange(e)}
                         >
                            <option value='0'>Administrator</option>
@@ -289,7 +289,7 @@ class ModalDashBoard extends Component {
                         <Form.Label className={classConstant.CLASS_LABEL}>{tableConstant.tbStatus}</Form.Label>
                         <Form.Select
                            name='status'
-                           defaultValue={this.state.formData['isActive'] === 1 ? '1' : '0'}
+                           defaultValue={parseInt(this.state.formData['isActive']) === 1 ? '1' : '0'}
                            id='status-opt'
                            onChange={(e) => this.handleOnchange(e)}
                         >

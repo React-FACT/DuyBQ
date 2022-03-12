@@ -37,7 +37,7 @@ RoleRouting.use(express.json());
  *     ResponseDto:
  *       type: object
  *       properties:
- *         errorCode:
+ *         statusCode:
  *           type: integer
  *         results:
  *           type: object

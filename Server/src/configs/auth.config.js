@@ -9,8 +9,8 @@ let jwtOptions = {};
 jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
 jwtOptions.secretOrKey = process.env.JWT_SECRET_KEY;
 
-let strategy = new JwtStrategy(jwtOptions, function(jwt_payload, next) {
-    let { isLoggedIn, user } = _UserService.verifyAuthByUser(jwt_payload.id);
+let strategy = new JwtStrategy(jwtOptions, async function(jwt_payload, next) {
+    let { isLoggedIn, user } = await _UserService.verifyAuthByUser(jwt_payload.id);
     if (isLoggedIn === true && user) {
         next(null, user);
     } else {

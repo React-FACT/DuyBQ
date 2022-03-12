@@ -18,8 +18,10 @@ class Dashboard extends Component {
    componentDidMount() {
       setTimeout(() => {
          getAll().then((res) => {
-            this.props.getAllUser(res['results']);
-            this.setState({ isLoading: true });
+            if (res.statusCode === 200) {
+               this.props.getAllUser(res['results']);
+               this.setState({ isLoading: true });
+            }
          });
       }, 3000);
    }

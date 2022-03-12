@@ -1,17 +1,16 @@
 const mysql = require('mysql8');
-const createConnetion = (host, port, db, user, passs) => {
-
+const createConnection = (host, port, db, user, psw) => {
     const connection = mysql.createConnection({
         host: String(host),
         database: String(db),
         port: Number(port),
         user: String(user),
-        password: String(passs),
+        password: String(psw),
     });
 
-    connection.connect(error => {
+    connection.connect((error) => {
         if (error) throw error;
-        console.log("Successfully connected to the database.");
+        console.log('Successfully connected to the database.');
     });
-}
-module.exports = { createConnetion }
+};
+module.exports = { createConnection };

@@ -1,5 +1,5 @@
 class ResponseDto {
-    errorCode = 200;
+    statusCode = 200;
     results;
 }
 module.exports = { ResponseDto };
