@@ -164,12 +164,8 @@ class ModalDashBoard extends Component {
       if (isValid === false) {
          return;
       }
-      update(id, dataUser).then((res) => {
-         if (res.statusCode === 200) {
-            this.props.updateUser(this.state.formData);
-            this.hide();
-         }
-      });
+      this.props.updateUser(this.state.formData);
+      this.hide();
    };
 
    handleAdd = async (e) => {

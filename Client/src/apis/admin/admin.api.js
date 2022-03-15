@@ -7,8 +7,8 @@ const url = 'user/';
  * @returns the list all users
  */
 
-const getAll = () => {
-    return httpRequest
+const getAll = async() => {
+    return await httpRequest
         .get(url)
         .then((res) => res.data)
         .catch((err) => err);

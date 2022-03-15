@@ -5,33 +5,17 @@ import Header from '../layout/Header';
 import Loader from '../helpers/Loader';
 import TableDashBoard from './TableDashBoard';
 import { connect } from 'react-redux';
-import { getAll } from '../../apis/admin/admin.api';
 import { actionGetAllUser } from '../../redux/actions/admin.Action';
 class Dashboard extends Component {
-   constructor(props) {
-      super(props);
-      this.state = {
-         isLoading: false,
-      };
-   }
-
    componentDidMount() {
-      setTimeout(() => {
-         getAll().then((res) => {
-            if (res.statusCode === 200) {
-               this.props.getAllUser(res['results']);
-               this.setState({ isLoading: true });
-            }
-         });
-      }, 3000);
+      this.props.getAllUser();
    }
-
    render() {
-      var { dataUsers } = this.props.users;
+      const { dataUsers, isLoading } = this.props.users;
       return (
          <div>
             <Header />
-            <div> {this.state.isLoading === true ? <TableDashBoard data={dataUsers} /> : <Loader />}</div>
+            {isLoading ? <Loader /> : <TableDashBoard data={dataUsers} />}
          </div>
       );
    }
@@ -42,12 +26,9 @@ const mapStateToProps = (state) => {
       users: state.users,
    };
 };
-
-const mapDispatchToProps = (dispatch, props) => {
+const mapDispatchToProps = (dispatch) => {
    return {
-      getAllUser: (users) => {
-         dispatch(actionGetAllUser(users));
-      },
+      getAllUser: (params) => dispatch(actionGetAllUser(params)),
    };
 };
 
