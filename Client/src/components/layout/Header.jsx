@@ -1,20 +1,21 @@
 import React, { Component } from 'react';
-import { Navbar, Nav, Container } from 'react-bootstrap';
-
+import { Link } from 'react-router-dom';
 class Header extends Component {
-  render() {
-    return (
-      <Navbar bg='primary' variant='dark'>
-        <Container>
-          <Navbar.Brand href='#home'>DASHBOARD</Navbar.Brand>
-          <Nav className='me-auto'>
-            <Nav.Link href='#home'>Home</Nav.Link>
-            <Nav.Link href='#features'>Features</Nav.Link>
-          </Nav>
-        </Container>
-      </Navbar>
-    );
-  }
+   render() {
+      return (
+         <nav className='navbar navbar-expand-lg bg-primary'>
+            <div className='collapse navbar-collapse' id='navbarNavDropdown'>
+               <ul className='nav mx-auto'>
+                  <li className='nav-item active'>
+                     <Link to='/' className='nav-link text-white' href='#'>
+                        <h3>Home</h3>
+                     </Link>
+                  </li>
+               </ul>
+            </div>
+         </nav>
+      );
+   }
 }
 
 export default Header;

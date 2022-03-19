@@ -2,24 +2,14 @@ import { ActionTypes } from '../constants/ActionTypes';
 
 export const actionGetAddress = (action, address) => {
     switch (action) {
-        case ActionTypes.GET_ALL_COUNTRY:
+        case ActionTypes.GET_ALL_ADDRESS:
             return {
-                type: ActionTypes.GET_ALL_COUNTRY,
+                type: ActionTypes.GET_ALL_ADDRESS,
                 address: address,
             };
-        case ActionTypes.GET_ALL_CITY:
+        case ActionTypes.SAVE_ALL_ADDRESS:
             return {
-                type: ActionTypes.GET_ALL_CITY,
-                address: address,
-            };
-        case ActionTypes.GET_ALL_DISTRICT:
-            return {
-                type: ActionTypes.GET_ALL_DISTRICT,
-                address: address,
-            };
-        case ActionTypes.GET_ALL_WARD:
-            return {
-                type: ActionTypes.GET_ALL_WARD,
+                type: ActionTypes.SAVE_ALL_ADDRESS,
                 address: address,
             };
         default:

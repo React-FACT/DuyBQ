@@ -5,7 +5,7 @@ const {
     appGetAll,
     appGetById
 } = require('../controllers/app.controller');
- 
+
 
 /** 
  * @swagger 
@@ -18,7 +18,7 @@ const {
  *       200: 
  *         description: Success  
  *   
- */  
+ */
 AppRouting.get(`${CommonMethodConstant.GetAll}`, appGetAll);
 
 /** 
@@ -39,7 +39,7 @@ AppRouting.get(`${CommonMethodConstant.GetAll}`, appGetAll);
  *       200: 
  *         description: Created  
  *   
- */ 
+ */
 AppRouting.get(`${CommonMethodConstant.GetById}`, appGetById);
 
 module.exports = { AppRouting };

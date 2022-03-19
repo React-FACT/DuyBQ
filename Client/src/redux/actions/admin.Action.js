@@ -1,9 +1,8 @@
 import { ActionTypes } from '../constants/ActionTypes';
 
-export const actionGetAllUser = (users) => {
+export const actionGetAllUser = () => {
     return {
         type: ActionTypes.GET_ALL_USER, // Action name
-        users,
     };
 };
 
@@ -17,6 +16,13 @@ export const actionReceiveUsers = (users) => {
 export const actionAddUser = (users) => {
     return {
         type: ActionTypes.ADD_USER,
+        users: users,
+    };
+};
+
+export const actionSaveAddUser = (users) => {
+    return {
+        type: ActionTypes.SAVE_ADD_USER,
         users: users,
     };
 };
@@ -37,6 +43,13 @@ export const actionSaveUpdateUser = (users) => {
 export const actionDeleteUser = (userId) => {
     return {
         type: ActionTypes.DELETE_USER,
+        userId: userId,
+    };
+};
+
+export const actionSaveDeleteUser = (userId) => {
+    return {
+        type: ActionTypes.SAVE_DELETE_USER,
         userId: userId,
     };
 };

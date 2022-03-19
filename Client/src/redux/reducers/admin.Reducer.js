@@ -23,8 +23,7 @@ export const usersReducer = (state = initState, action) => {
                 isLoading: false,
             };
         case ActionTypes.SAVE_UPDATE_USER:
-            console.log('SAVE');
-            let users = state['dataUsers'].map((v) => {
+            let users = state.dataUsers.map((v) => {
                 if (v.id === action.users.id) {
                     v = action.users;
                 }
@@ -35,8 +34,11 @@ export const usersReducer = (state = initState, action) => {
                 dataUsers: users,
             };
         case ActionTypes.DELETE_USER:
-            state['dataUsers'] = state['dataUsers'].filter((v) => v.id !== action.userId);
-            return state;
+            let rmUser = state['dataUsers'].filter((v) => v.id !== action.userId);
+            return {
+                ...state,
+                dataUsers: rmUser,
+            };
         default:
             return state;
     }

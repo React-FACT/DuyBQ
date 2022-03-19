@@ -6,7 +6,6 @@ import { Container, Row, Table } from 'react-bootstrap';
 import { tableConstant, tbClassConstant } from '../constants/admin.constant';
 import { iconConstant, classConstant, textEventConstant } from '../constants/global.constant';
 import { connect } from 'react-redux';
-import { remove } from '../../apis/admin/admin.api';
 import { actionDeleteUser } from '../../redux/actions/admin.Action';
 
 class TableDashBoard extends Component {
@@ -34,13 +33,8 @@ class TableDashBoard extends Component {
    handleHide = () => {
       this.setState({ ...this.state, isShow: false, isEffect: true });
    };
-
-   /*  send request delete user to server */
    handleDelete = (usrId) => {
       this.props.deleteUserById(usrId);
-      remove(usrId).then((res) => {
-         this.setState({ ...this.state, isEffect: true });
-      });
    };
 
    render() {
@@ -98,7 +92,7 @@ class TableDashBoard extends Component {
                      </tr>
                   </thead>
                   <tbody id='table-body'>
-                     {this.state.dataTable.map((value, idx) => {
+                     {this.props.users.dataUsers.map((value, idx) => {
                         return (
                            <tr key={idx}>
                               <td>{idx + 1}</td>

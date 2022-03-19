@@ -2,14 +2,12 @@ import React, { Component } from 'react';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { getAll, create, update } from '../../apis/admin/admin.api';
 import { tableConstant } from '../constants/admin.constant';
 import { ActionTypes } from '../../redux/constants/ActionTypes';
 import { Modal, Button, Form, Row, Col } from 'react-bootstrap';
 import { actionGetAddress } from '../../redux/actions/address.Action';
-import { actionGetAllUser, actionUpdateUser } from '../../redux/actions/admin.Action';
+import { actionGetAllUser, actionUpdateUser, actionAddUser } from '../../redux/actions/admin.Action';
 import { textEventConstant, classConstant } from '../constants/global.constant';
-import { getCountry, getCityById, getDistrictById, getWardById } from '../../apis/address/address.api';
 
 class ModalDashBoard extends Component {
    constructor(props) {
@@ -34,7 +32,14 @@ class ModalDashBoard extends Component {
          },
          msgErr: {
             msgEmail: '',
+            msgPassword: '',
             msgUserName: '',
+            msgLastName: '',
+         },
+         address: {
+            cities: [],
+            districts: [],
+            wards: [],
          },
       };
    }
@@ -69,9 +74,7 @@ class ModalDashBoard extends Component {
 
    async componentDidMount() {
       this.initState();
-      await getCountry().then((res) => {
-         this.props.getAddress(ActionTypes.GET_ALL_COUNTRY, res['results']);
-      });
+      this.props.getAddress(ActionTypes.GET_ALL_ADDRESS);
    }
 
    componentDidUpdate(previousProps, previousState) {
@@ -101,27 +104,37 @@ class ModalDashBoard extends Component {
    }
 
    handleOnchange = async (e) => {
+      var { city, district, ward } = this.props.address;
       switch (e.target.name) {
          case 'country':
-            await getCityById(e.target.value).then((res) =>
-               this.props.getAddress(ActionTypes.GET_ALL_CITY, res['results'])
-            );
-            this.setState({ formData: { ...this.state.formData, countryId: parseInt(e.target.value) } });
+            let _cities = city.filter((v) => parseInt(v.countryId) === parseInt(e.target.value));
+            this.setState({
+               ...this.state,
+               formData: { ...this.state.formData, countryId: parseInt(e.target.value) },
+               address: { ...this.state.address, cities: _cities, districts: [], wards: [] },
+            });
             break;
          case 'city':
-            await getDistrictById(e.target.value).then((res) =>
-               this.props.getAddress(ActionTypes.GET_ALL_DISTRICT, res['results'])
-            );
-            this.setState({ formData: { ...this.state.formData, provinceId: parseInt(e.target.value) } });
+            let _districts = district.filter((v) => parseInt(v.provinceId) === parseInt(e.target.value));
+            this.setState({
+               ...this.state,
+               formData: { ...this.state.formData, provinceId: parseInt(e.target.value) },
+               address: { ...this.state.address, districts: _districts, wards: [] },
+            });
             break;
          case 'district':
-            await getWardById(e.target.value).then((res) =>
-               this.props.getAddress(ActionTypes.GET_ALL_WARD, res['results'])
-            );
-            this.setState({ formData: { ...this.state.formData, districtId: parseInt(e.target.value) } });
+            let _wards = ward.filter((v) => parseInt(v.districtId) === parseInt(e.target.value));
+            this.setState({
+               ...this.state,
+               formData: { ...this.state.formData, districtId: parseInt(e.target.value) },
+               address: { ...this.state.address, wards: _wards },
+            });
             break;
          case 'ward':
-            this.setState({ formData: { ...this.state.formData, wardId: parseInt(e.target.value) } });
+            this.setState({
+               ...this.state,
+               formData: { ...this.state.formData, wardId: parseInt(e.target.value) },
+            });
             break;
          case 'role':
             this.setState({ formData: { ...this.state.formData, isAdmin: parseInt(e.target.value) } });
@@ -173,18 +186,8 @@ class ModalDashBoard extends Component {
       if (isValid === false) {
          return;
       }
-      await create(this.state.formData).then((res) => {
-         this.requestGetLatestUser(res);
-      });
-   };
-
-   requestGetLatestUser = () => {
-      getAll().then((res) => {
-         if (res.statusCode === 200) {
-            this.props.getUser(res['results']);
-            this.hide();
-         }
-      });
+      await this.props.addUser(this.state.formData);
+      this.hide();
    };
 
    getFirstOpt(data) {
@@ -192,7 +195,7 @@ class ModalDashBoard extends Component {
    }
 
    render() {
-      var { country, city, district, ward } = this.props.address;
+      var { country } = this.props.address;
       return (
          <Modal scrollable={true} size='lg' show={this.props.show} onHide={this.props.show}>
             <Modal.Header className='modal-header'>
@@ -336,9 +339,11 @@ class ModalDashBoard extends Component {
                         <Form.Label className={classConstant.CLASS_LABEL}>{tableConstant.tbCity}</Form.Label>
                         <Form.Select name='city' id='city-opt' onChange={(e) => this.handleOnchange(e)}>
                            <option hidden value=''>
-                              {city.length > 0 ? this.getFirstOpt(city) : 'Choose...'}
+                              {this.state.address.cities.length > 0
+                                 ? this.getFirstOpt(this.state.address.cities)
+                                 : 'Choose...'}
                            </option>
-                           {city.length > 0 ? this.optionAddress(city) : null}
+                           {this.state.address.cities.length > 0 ? this.optionAddress(this.state.address.cities) : null}
                         </Form.Select>
                      </Form.Group>
 
@@ -346,9 +351,13 @@ class ModalDashBoard extends Component {
                         <Form.Label className={classConstant.CLASS_LABEL}>{tableConstant.tbDistrict}</Form.Label>
                         <Form.Select name='district' id='district-opt' onChange={(e) => this.handleOnchange(e)}>
                            <option hidden value=''>
-                              {district.length > 0 ? this.getFirstOpt(district) : 'Choose...'}
+                              {this.state.address.districts.length > 0
+                                 ? this.getFirstOpt(this.state.address.districts)
+                                 : 'Choose...'}
                            </option>
-                           {district.length > 0 ? this.optionAddress(district) : null}
+                           {this.state.address.districts.length > 0
+                              ? this.optionAddress(this.state.address.districts)
+                              : null}
                         </Form.Select>
                      </Form.Group>
 
@@ -356,9 +365,11 @@ class ModalDashBoard extends Component {
                         <Form.Label className={classConstant.CLASS_LABEL}>{tableConstant.tbWard}</Form.Label>
                         <Form.Select name='ward' id='ward-opt' onChange={(e) => this.handleOnchange(e)}>
                            <option hidden value=''>
-                              {ward.length > 0 ? this.getFirstOpt(ward) : 'Choose...'}
+                              {this.state.address.wards.length > 0
+                                 ? this.getFirstOpt(this.state.address.wards)
+                                 : 'Choose...'}
                            </option>
-                           {ward.length > 0 ? this.optionAddress(ward) : null}
+                           {this.state.address.wards.length > 0 ? this.optionAddress(this.state.address.wards) : null}
                         </Form.Select>
                      </Form.Group>
                   </Row>
@@ -415,11 +426,14 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch, props) => {
    return {
-      getAddress: (action, address) => {
-         dispatch(actionGetAddress(action, address));
+      getAddress: (action) => {
+         dispatch(actionGetAddress(action));
       },
       getUser: (users) => {
          dispatch(actionGetAllUser(users));
+      },
+      addUser: (users) => {
+         dispatch(actionAddUser(users));
       },
       updateUser: (users) => {
          dispatch(actionUpdateUser(users));

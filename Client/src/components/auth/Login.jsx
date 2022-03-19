@@ -1,88 +1,75 @@
-import React, { Component } from 'react';
-import { Container, Form, Button } from 'react-bootstrap';
-import Loader from '../helpers/Loader';
+import React from 'react';
+import { Formik, Field, Form, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
 import { login } from '../../apis/auth/auth';
-class Login extends Component {
+import { withRouter } from 'react-router-dom';
+class Login extends React.Component {
    constructor(props) {
       super(props);
       this.state = {
-         email: '',
-         password: '',
          isLoggedIn: false,
-         msgErr: '',
       };
    }
-
-   handleLogin = async (e) => {
-      e.preventDefault();
-      let { email, password } = this.state;
-      let payload = { email, password };
-      await login(payload)
-         .then((res) => {
-            this.setState({ ...this.state, isLoggedIn: true });
-            if (res.statusCode === 401) {
-               this.setState({ ...this.state, isLoggedIn: false });
-               this.setState({ ...this.state, msgErr: 'email or password incorrect' });
-            } else {
-               this.setState({ ...this.state, isLoggedIn: false });
-               localStorage.setItem('token', res.results.token);
-               localStorage.setItem('users', JSON.stringify(res.results.users));
-               this.props.history.push('/');
-            }
-            console.log(res);
-         })
-         .catch((er) => {
-            this.setState({ ...this.state, msgErr: 'email or password incorrect' });
-            console.log(er);
-         });
-
-      // if (email.includes('admin@mail.com') && password.includes('admin')) {
-      //    this.setState({ ...this.state, isLoggedIn: true });
-      //    setTimeout(() => {
-      //       this.setState({ ...this.state, isLoggedIn: false });
-      //       this.props.history.push('/');
-      //    }, 2000);
-      // } else {
-      //    this.setState({ ...this.state, msgErr: 'email or password incorrect' });
-      // }
-   };
-
+   componentDidUpdate(prevProps, prevState) {
+      if (prevState.isLoggedIn !== this.state.isLoggedIn) {
+         this.props.history.push('/');
+      }
+   }
    render() {
       return (
-         <div>
-            {this.state.isLoggedIn ? (
-               <Loader />
-            ) : (
-               <Container className='mt-4'>
-                  <div data-testid='login'> LOGIN </div>
-                  <Form onSubmit={(e) => this.handleLogin(e)}>
-                     <Form.Group className='mb-3'>
-                        <Form.Label>Email address</Form.Label>
-                        <Form.Control
-                           type='email'
-                           placeholder='Enter email'
-                           onChange={(e) => this.setState({ ...this.state, email: e.target.value })}
+         <Formik
+            initialValues={{
+               email: '',
+               password: '',
+            }}
+            validationSchema={Yup.object().shape({
+               email: Yup.string().email('Email is invalid').required('Email is required'),
+               password: Yup.string().min(6, 'Password must be at least 6 characters').required('Password is required'),
+            })}
+            onSubmit={(fields) => {
+               login(fields).then((res) => {
+                  if (res.statusCode === 200) {
+                     localStorage.setItem('token', res.results.token);
+                     localStorage.setItem('users', JSON.stringify(res.results.users));
+                     this.setState({ isLoggedIn: true });
+                  }
+               });
+            }}
+            render={({ errors, touched }) => (
+               <Form>
+                  <div className='container'>
+                     <div>
+                        <h1 className='text-success'> LOGIN </h1>
+                     </div>
+                     <div className='form-group'>
+                        <label htmlFor='email'>Email</label>
+                        <Field
+                           name='email'
+                           type='text'
+                           className={'form-control' + (errors.email && touched.email ? ' is-invalid' : '')}
                         />
-                        <Form.Text className='text-muted'>{this.state.msgErr}</Form.Text>
-                     </Form.Group>
-
-                     <Form.Group className='mb-3'>
-                        <Form.Label>Password</Form.Label>
-                        <Form.Control
+                        <ErrorMessage name='email' component='div' className='invalid-feedback' />
+                     </div>
+                     <div className='form-group'>
+                        <label htmlFor='password'>Password</label>
+                        <Field
+                           name='password'
                            type='password'
-                           placeholder='Password'
-                           onChange={(e) => this.setState({ ...this.state, password: e.target.value })}
+                           className={'form-control' + (errors.password && touched.password ? ' is-invalid' : '')}
                         />
-                     </Form.Group>
-                     <Button variant='primary' type='submit'>
-                        Login
-                     </Button>
-                  </Form>
-               </Container>
+                        <ErrorMessage name='password' component='div' className='invalid-feedback' />
+                     </div>
+                     <div className='form-group mt-4'>
+                        <button type='submit' className='btn btn-primary'>
+                           Login
+                        </button>
+                     </div>
+                  </div>
+               </Form>
             )}
-         </div>
+         />
       );
    }
 }
 
-export default Login;
+export default withRouter(Login);

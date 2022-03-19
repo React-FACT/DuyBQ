@@ -46,10 +46,17 @@ const create = async(body) => {
  */
 
 const update = async(id, body) => {
-    return await httpRequest
-        .put(url + id, body)
-        .then((res) => res.data)
-        .catch((err) => err);
+    try {
+        const _request = await httpRequest.put(url + id, body);
+        return _request.data;
+    } catch (e) {
+        console.log(e);
+    }
+
+    // return await httpRequest
+    //     .
+    //     .then((res) => res.data)
+    //     .catch((err) => err);
 };
 
 /**

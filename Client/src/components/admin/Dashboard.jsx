@@ -28,7 +28,7 @@ const mapStateToProps = (state) => {
 };
 const mapDispatchToProps = (dispatch) => {
    return {
-      getAllUser: (params) => dispatch(actionGetAllUser(params)),
+      getAllUser: () => dispatch(actionGetAllUser()),
    };
 };
 

@@ -14,10 +14,8 @@ const wardUrl = 'address/ward/parent/';
  */
 
 const getCountry = async() => {
-    return await httpRequest
-        .get(countryAllUrl)
-        .then((r) => r.data)
-        .catch((err) => err);
+    const _countries = await httpRequest.get(countryAllUrl);
+    return _countries.data;
 };
 
 /**
@@ -26,10 +24,8 @@ const getCountry = async() => {
  */
 
 const getCity = async() => {
-    return await httpRequest
-        .get(cityAllUrl)
-        .then((r) => r.data)
-        .catch((err) => err);
+    const _cities = await httpRequest.get(cityAllUrl);
+    return _cities.data;
 };
 
 /**
@@ -38,10 +34,8 @@ const getCity = async() => {
  */
 
 const getDistrict = async() => {
-    return await httpRequest
-        .get(districtAllUrl)
-        .then((r) => r.data)
-        .catch((err) => err);
+    const _districts = await httpRequest.get(districtAllUrl);
+    return _districts.data;
 };
 
 /**
@@ -50,10 +44,8 @@ const getDistrict = async() => {
  */
 
 const getWard = async() => {
-    return await httpRequest
-        .get(wardAllUrl)
-        .then((r) => r.data)
-        .catch((err) => err);
+    const wards = await httpRequest.get(wardAllUrl);
+    return wards.data;
 };
 
 /**
